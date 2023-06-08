@@ -7,7 +7,8 @@
 */
 
 
-extern coreinit cubafun_;
+/* Commented out for gcc 10.0 -fno-common default */
+/* extern coreinit cubafun_; */
 extern int cubaverb_;
 extern corespec cubaworkers_;
 
