@@ -12,7 +12,7 @@
 static inline bool BadDimension(cThis *t)
 {
   if( t->ndim > MAXDIM ) return true;
-  return t->ndim < 2;
+  return t->ndim < 1;
 }
 
 static inline bool BadComponent(cThis *t)
