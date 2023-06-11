@@ -41,18 +41,19 @@
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #elif defined __GNUC__
-#define alloca __builtin_alloca
+#define my_alloca __builtin_alloca
 #elif defined _AIX
-#define alloca __alloca
+#define my_alloca __alloca
 #elif defined _MSC_VER
 #include <malloc.h>
-#define alloca _alloca
+#define my_alloca _alloca
 #else
 #include <stddef.h>
 #ifdef  __cplusplus
 extern "C"
 #endif
 void *alloca (size_t);
+#define my_alloca alloca
 #endif
 
 #ifndef NDIM
@@ -168,9 +169,9 @@ enum { uninitialized = 0x61627563 };
 #define Vector(type, var, n1) type var[n1]
 #define Array(type, var, n1, n2) type var[n1][n2]
 #else
-#define Sized(type, var, size) type *var = alloca(size)
-#define Vector(type, var, n1) type *var = alloca((n1)*sizeof(type))
-#define Array(type, var, n1, n2) type (*var)[n2] = alloca((n1)*(n2)*sizeof(type))
+#define Sized(type, var, size) type *var = my_alloca(size)
+#define Vector(type, var, n1) type *var = my_alloca((n1)*sizeof(type))
+#define Array(type, var, n1, n2) type (*var)[n2] = my_alloca((n1)*(n2)*sizeof(type))
 #endif
 
 #define FORK_ONLY(...)
@@ -250,7 +251,7 @@ struct stat st
   if( *(t)->statefile == 0 ) (t)->statefile = NULL; \
   else { \
     ccount len = strlen((t)->statefile); \
-    statefile_tmp = alloca(len + 8); \
+    statefile_tmp = my_alloca(len + 8); \
     strcpy(statefile_tmp, (t)->statefile); \
     statefile_XXXXXX = statefile_tmp + len; \
   } \
@@ -493,7 +494,7 @@ typedef struct {
   if( fs ) { \
     int _l = len; \
     while( _l > 0 && fs[_l - 1] == ' ' ) --_l; \
-    if( _l > 0 && (_s = alloca(_l + 1)) ) { \
+    if( _l > 0 && (_s = my_alloca(_l + 1)) ) { \
       memcpy(_s, fs, _l); \
       _s[_l] = 0; \
     } \
