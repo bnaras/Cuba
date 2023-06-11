@@ -420,8 +420,11 @@ typedef struct {
 
 /* Added for gcc 10.x default -fno-common. Global used by several funcs in Cuba-4.2+ */
 /* CONCERN: Should this be static? I made it so because I don't understand how */
-/* Parallel.c refers to it with no declaration in scope! */
+/* Parallel.c refers to it with no declaration in scope! Also Data.c doesn't used it!*/
+
+#ifndef _data_c_source
 static coreinit cubafun_;
+#endif
 
 typedef struct {
   int ncores, naccel;
