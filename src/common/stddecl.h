@@ -4,6 +4,9 @@
 		last modified 28 Jun 21 th
 */
 
+#ifdef _R_INTERFACE_
+#include <Rcpp.h>
+#endif
 
 #ifndef _stddecl_h_
 #define _stddecl_h_
@@ -156,8 +159,16 @@ enum { uninitialized = 0x61627563 };
 
 #define Abort(s) abort1(s, __LINE__)
 #define abort1(s, line) abort2(s, line)
-// #define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); exit(1); }
-#define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); Rcpp::stop("Cuba: abort2 called"); }
+#ifndef _R_INTERFACE_
+#define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); exit(1); }
+#else
+#define abort2(s, line) \
+  do {			\
+    char buf[1024]; \
+    std::snprintf(buf, sizeof(buf), s " " __FILE__ "(" #line ")");
+    Rcpp::warning(buf); \
+} while(0)
+#endif
 
 #define Die(p) if( (p) == NULL ) Abort("malloc")
 
@@ -568,8 +579,11 @@ static inline void Print(MLCONST char *s)
 
 #else
 
-// #define Print(s) do { puts(s); fflush(stdout); } while( 0 )
+#ifndef _R_INTERFACE_
+#define Print(s) do { puts(s); fflush(stdout); } while( 0 )
+#else
 #define Print(s) do { Rcpp::Rcout << s << std::endl; } while( 0 )
+#endif
 
 #endif
 
