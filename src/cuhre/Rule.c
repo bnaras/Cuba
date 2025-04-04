@@ -743,12 +743,12 @@ static void Sample(This *t, Region *region)
     cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
 
     for( b = region->bounds; b < B; ++b ) {
-      oe += sprintf(oe, msg, b->lower, b->upper);
+      oe += std::sprintf(oe, msg, b->lower, b->upper);
       msg = "\n       (" REALF ") - (" REALF ")";
     }
 
     for( res = result, comp = 0; res < Res; ++res )
-      oe += sprintf(oe, "\n[" COUNT "] "
+      oe += std::sprintf(oe, "\n[" COUNT "] "
         REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
 
     Print(out);

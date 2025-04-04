@@ -29,7 +29,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   Vector(char, out, 128*NCOMP + 256);
 
   if( VERBOSE > 1 ) {
-    sprintf(out, "Vegas input parameters:\n"
+    std::sprintf(out, "Vegas input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
       "  epsrel " REAL "\n  epsabs " REAL "\n"
@@ -159,11 +159,11 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     }
 
     if( VERBOSE ) {
-      char *oe = out + sprintf(out, "\n"
+      char *oe = out + std::sprintf(out, "\n"
         "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
         state->niter + 1, t->neval);
       for( c = state->cumul, comp = 0; c < C; ++c )
-        oe += sprintf(oe, "\n[" COUNT "] "
+        oe += std::sprintf(oe, "\n[" COUNT "] "
           REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
           ++comp, SHOW(c->avg), SHOW(c->err),
           SHOW(c->chisq), state->niter);

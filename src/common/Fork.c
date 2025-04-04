@@ -76,7 +76,7 @@ Extern void SUFFIX(cubafork)(Spin **pspin)
   }
 
   if( cubaverb_ ) {
-    sprintf(out, "using %d cores %d accelerators via "
+    std::sprintf(out, "using %d cores %d accelerators via "
 #ifdef HAVE_SHMGET
       "shared memory",
 #else
@@ -103,7 +103,7 @@ Extern void SUFFIX(cubafork)(Spin **pspin)
       close(fd[0]);
       free(spin);
       Child(fd[1], core);
-      exit(0);
+      // exit(0);  // Not needed when called from R
     }
     MASTER("forked pid %d pipe %d(master) -> %d(worker)",
       pid, fd[0], fd[1]);

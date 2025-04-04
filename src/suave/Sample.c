@@ -88,10 +88,10 @@ static void Sample(This *t, cnumber nnew, Region *region,
           if( VERBOSE > 2 ) {
             creal sig = sqrtx(1/w);
             ss[comp] += (df == 0) ?
-              sprintf(ss[comp], "\n[" COUNT "] "
+              std::sprintf(ss[comp], "\n[" COUNT "] "
                 REAL " +- " REAL " (" NUMBER ")", comp + 1,
                 SHOW(c->sum), SHOW(sig), n) :
-              sprintf(ss[comp], "\n    "
+              std::sprintf(ss[comp], "\n    "
                 REAL " +- " REAL " (" NUMBER ")",
                 SHOW(c->sum), SHOW(sig), n);
           }
@@ -146,13 +146,13 @@ static void Sample(This *t, cnumber nnew, Region *region,
     char *msg = "\nRegion (" REALF ") - (" REALF ")";
 
     for( b = bounds; b < B; ++b ) {
-      p += sprintf(p, msg, b->lower, b->upper);
+      p += std::sprintf(p, msg, b->lower, b->upper);
       msg = "\n       (" REALF ") - (" REALF ")";
     }
 
     for( comp = 0, res = region->result;
          comp < t->ncomp; ++comp, ++res ) {
-      p += sprintf(p, "%s  \tchisq " REAL " (" COUNT " df)",
+      p += std::sprintf(p, "%s  \tchisq " REAL " (" COUNT " df)",
         p0, SHOW(res->chisq), df);
       p0 += chars;
     }

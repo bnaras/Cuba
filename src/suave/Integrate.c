@@ -31,7 +31,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    sprintf(out, "Suave input parameters:\n"
+    std::sprintf(out, "Suave input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
       "  epsrel " REAL "\n  epsabs " REAL "\n"
@@ -131,11 +131,11 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     real *w, *wL, *wR, *x, *xL, *xR, *f, *fL, *fR, *wlast, *flast;
 
     if( VERBOSE ) {
-      char *oe = out + sprintf(out, "\n"
+      char *oe = out + std::sprintf(out, "\n"
         "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
         t->nregions, t->neval);
       for( tot = state->totals, comp = 0; tot < Tot; ++tot )
-        oe += sprintf(oe, "\n[" COUNT "] "
+        oe += std::sprintf(oe, "\n[" COUNT "] "
           REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
           ++comp, SHOW(tot->avg), SHOW(tot->err),
           SHOW(tot->chisq), state->df);

@@ -36,7 +36,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    sprintf(out, "Divonne input parameters:\n"
+    std::sprintf(out, "Divonne input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
       "  epsrel " REAL "\n  epsabs " REAL "\n"
@@ -189,7 +189,7 @@ if( StateWriteTest(t) ) { \
       WriteState(t);
 
       if( VERBOSE ) {
-        char *oe = out + sprintf(out, "\n"
+        char *oe = out + std::sprintf(out, "\n"
           "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
           NUMBER7 " integrand evaluations so far,\n"
           NUMBER7 " in optimizing regions,\n"
@@ -197,7 +197,7 @@ if( StateWriteTest(t) ) { \
           state->iter, state->pass, t->nregions,
           t->neval, t->neval_opt, t->neval_cut);
         for( comp = 0; comp < t->ncomp; ++comp )
-          oe += sprintf(oe, "\n[" COUNT "] "
+          oe += std::sprintf(oe, "\n[" COUNT "] "
             REAL " +- " REAL,
             comp + 1, SHOW(integral[comp]), SHOW(error[comp]));
         Print(out);
@@ -255,7 +255,7 @@ if( StateWriteTest(t) ) { \
     SamplesAlloc(t, &t->samples[1]);
 
     if( VERBOSE ) {
-      sprintf(out, "\nMain integration on " COUNT
+      std::sprintf(out, "\nMain integration on " COUNT
         " regions with " NUMBER " samples per region.",
         t->nregions, t->samples[1].neff);
       Print(out);
@@ -325,7 +325,7 @@ refine:
                       can_adjust = false;
 
                     if( VERBOSE > 2 ) {
-                      sprintf(out, "Sampling remaining " COUNT
+                      std::sprintf(out, "Sampling remaining " COUNT
                         " regions with " NUMBER " points per region.",
                         t->nregions, t->samples[1].neff);
                       Print(out);
@@ -369,7 +369,7 @@ refine:
       if( VERBOSE > 2 ) {
         cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
         for( B = (b = region->bounds) + t->ndim; b < B; ++b ) {
-          oe += sprintf(oe, msg, SHOW(b->lower), SHOW(b->upper));
+          oe += std::sprintf(oe, msg, SHOW(b->lower), SHOW(b->upper));
           msg = "\n       (" REALF ") - (" REALF ")";
         }
       }
@@ -408,12 +408,12 @@ refine:
         if( VERBOSE > 2 ) {
 #define Out2(f, r) SHOW((r)->avg), SHOW(res->spread/t->samples[f].neff), SHOW((r)->err)
 #define Out(f) Out2(f, &tot->phase[f])
-          oe += sprintf(oe, "\n[" COUNT "] "
+          oe += std::sprintf(oe, "\n[" COUNT "] "
             REAL " +- " REAL "(" REAL ")\n    "
             REAL " +- " REAL "(" REAL ")", ++comp, Out(0), Out(1));
-          if( todo == 3 ) oe += sprintf(oe, "\n    "
+          if( todo == 3 ) oe += std::sprintf(oe, "\n    "
             REAL " +- " REAL "(" REAL ")", Out2(2, res));
-          oe += sprintf(oe, "  \tchisq " REAL, SHOW(chisq));
+          oe += std::sprintf(oe, "  \tchisq " REAL, SHOW(chisq));
         }
 
         tot->integral += avg;
@@ -440,9 +440,9 @@ refine:
     }
 
     if( VERBOSE > 2 ) {
-      char *oe = out + sprintf(out, "\nTotals:");
+      char *oe = out + std::sprintf(out, "\nTotals:");
       for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp )
-        oe += sprintf(oe, "\n[" COUNT "] "
+        oe += std::sprintf(oe, "\n[" COUNT "] "
           REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
           comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
           SHOW(tot->chisq), df);

@@ -97,7 +97,7 @@ enum { uninitialized = 0x61627563 };
       var = atoi(env); \
       if( cubaverb_ ) { \
         char out[64]; \
-        sprintf(out, "env " name " = %d", (int)var); \
+	std::sprintf(out, "env " name " = %d", (int)var);	\
         Print(out); \
       } \
     } \
@@ -156,7 +156,8 @@ enum { uninitialized = 0x61627563 };
 
 #define Abort(s) abort1(s, __LINE__)
 #define abort1(s, line) abort2(s, line)
-#define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); exit(1); }
+// #define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); exit(1); }
+#define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); Rcpp::stop("Cuba: abort2 called"); }
 
 #define Die(p) if( (p) == NULL ) Abort("malloc")
 
@@ -283,7 +284,7 @@ enum { signature = 0x41425543 };
   } \
   if( ini | statemsg ) { \
     char s[512]; \
-    sprintf(s, ini ? \
+    std::sprintf(s, ini ?					  \
       "\nError restoring state from %s, starting from scratch." : \
       "\nRestored state from %s.", (t)->statefile); \
     Print(s); \
@@ -310,7 +311,7 @@ enum { signature = 0x41425543 };
   } \
   if( fail | statemsg ) { \
     char s[512]; \
-    sprintf(s, fail ? \
+    std::sprintf(s, fail ?	      \
       "\nError saving state to %s." : \
       "\nSaved state to %s.", (t)->statefile); \
     Print(s); \
@@ -567,7 +568,8 @@ static inline void Print(MLCONST char *s)
 
 #else
 
-#define Print(s) do { puts(s); fflush(stdout); } while( 0 )
+// #define Print(s) do { puts(s); fflush(stdout); } while( 0 )
+#define Print(s) do { Rcpp::Rcout << s << std::endl; } while( 0 )
 
 #endif
 
