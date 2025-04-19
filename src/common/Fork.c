@@ -5,7 +5,9 @@
 		by Thomas Hahn
 		last modified 30 Oct 20 th
 */
-
+#ifdef _R_INTERFACE
+#include <R.h>
+#endif
 
 #define ROUTINE "cubafork"
 #include "stddecl.h"
@@ -103,7 +105,11 @@ Extern void SUFFIX(cubafork)(Spin **pspin)
       close(fd[0]);
       free(spin);
       Child(fd[1], core);
+#ifdef _R_INTERFACE
+      Rf_error("Fork.c: Terminating due to error.");
+#else      
       exit(0);
+#endif
     }
     MASTER("forked pid %d pipe %d(master) -> %d(worker)",
       pid, fd[0], fd[1]);
