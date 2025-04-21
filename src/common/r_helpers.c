@@ -1,6 +1,6 @@
 #include <R.h>
 
-void invoke_r_exit(int code) {
-    Rf_error("Exited from Cuba.");
+void invoke_r_exit(const char *str) {
+    Rf_error(str);
 }
 

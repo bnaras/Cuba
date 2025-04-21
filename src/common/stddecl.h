@@ -5,7 +5,7 @@
 */
 
 #ifdef _R_INTERFACE
-#include <R.h>
+#include <r_helpers.h>
 #endif
 
 #ifndef _stddecl_h_
