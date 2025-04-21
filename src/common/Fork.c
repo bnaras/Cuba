@@ -102,7 +102,7 @@ Extern void SUFFIX(cubafork)(Spin **pspin)
       free(spin);
       Child(fd[1], core);
 #ifdef _R_INTERFACE
-      invoke_r_exit("Fork.c: Terminating due to error.");
+      invoke_r_exit();
 #else      
       exit(0);
 #endif

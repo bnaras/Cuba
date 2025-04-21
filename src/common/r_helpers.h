@@ -3,7 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void invoke_r_exit(const char *);
+void invoke_r_exit(void);
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif /* __cplusplus */

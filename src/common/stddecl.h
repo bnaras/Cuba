@@ -160,11 +160,7 @@ enum { uninitialized = 0x61627563 };
 #define Abort(s) abort1(s, __LINE__)
 #define abort1(s, line) abort2(s, line)
 #ifdef _R_INTERFACE
-#define abort2(s, line) do {                           \
-    perror(s " " __FILE__ "(" #line ")");              \
-    Rf_error("Terminating due to error at %s:%d",       \
-             __FILE__, line);                          \
-} while(0)
+#define abort2(s, line) do { perror(s " " __FILE__ "(" #line ")"); invoke_r_exit(); } while(0)
 #else
 #define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); exit(1); }
 #endif
