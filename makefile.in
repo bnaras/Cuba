@@ -86,6 +86,8 @@ COMMON_CDEPS = $(COMMON_DEPS) $(common)/CSample.c $(common)/Parallel.c $(common)
 COMMON_TMDEPS = $(COMMON_DEPS) $(common)/MSample.c
 
 RNG_DEPS = $(common)/Random.c $(common)/KorobovCoeff.c
+R_DEPS = $(LIB)(r_helpers.o)
+
 
 VEGAS_C = $(vegas)/Vegas.c
 VEGAS_TM = $(vegas)/Vegas.tm
@@ -94,7 +96,7 @@ VEGAS_DEPS = $(RNG_DEPS) \
   $(vegas)/Grid.c $(vegas)/Integrate.c
 VEGAS = $(VEGAS_C) $(VEGAS_TM) $(VEGAS_DEPS)
 
-$(LIB)(Vegas.o): config.h $(VEGAS_C) $(VEGAS_DEPS) $(COMMON_CDEPS) 
+$(LIB)(Vegas.o): config.h $(VEGAS_C) $(VEGAS_DEPS) $(COMMON_CDEPS) $(R_DEPS)
 	$(CC) $(CFLAGS) -I$(vegas) -DNOUNDERSCORE -c -o Vegas.o $(VEGAS_C)
 
 
@@ -107,7 +109,7 @@ SUAVE_DEPS = $(RNG_DEPS) \
   $(suave)/Integrate.c
 SUAVE = $(SUAVE_C) $(SUAVE_TM) $(SUAVE_DEPS)
 
-$(LIB)(Suave.o): config.h $(SUAVE_C) $(SUAVE_DEPS) $(COMMON_CDEPS)
+$(LIB)(Suave.o): config.h $(SUAVE_C) $(SUAVE_DEPS) $(COMMON_CDEPS) $(R_DEPS)
 	$(CC) $(CFLAGS) -I$(suave) -DNOUNDERSCORE -c -o Suave.o $(SUAVE_C)
 
 
@@ -121,7 +123,7 @@ DIVONNE_DEPS = $(RNG_DEPS) \
   $(divonne)/Split.c $(divonne)/Integrate.c
 DIVONNE = $(DIVONNE_C) $(DIVONNE_TM) $(DIVONNE_DEPS)
 
-$(LIB)(Divonne.o): config.h $(DIVONNE_C) $(DIVONNE_DEPS) $(COMMON_CDEPS)
+$(LIB)(Divonne.o): config.h $(DIVONNE_C) $(DIVONNE_DEPS) $(COMMON_CDEPS) $(R_DEPS)
 	$(CC) $(CFLAGS) -I$(divonne) -DNOUNDERSCORE -c -o Divonne.o $(DIVONNE_C)
 
 
@@ -133,9 +135,12 @@ CUHRE_DEPS = \
   $(cuhre)/Rule.c $(cuhre)/Integrate.c
 CUHRE = $(CUHRE_C) $(CUHRE_TM) $(CUHRE_DEPS)
 
-$(LIB)(Cuhre.o): config.h $(CUHRE_C) $(CUHRE_DEPS) $(COMMON_CDEPS)
+$(LIB)(Cuhre.o): config.h $(CUHRE_C) $(CUHRE_DEPS) $(COMMON_CDEPS) $(R_DEPS)
 	$(CC) $(CFLAGS) -I$(cuhre) -DNOUNDERSCORE -c -o Cuhre.o $(CUHRE_C)
 
+
+$(LIB)(r_helpers.o): $(common)/r_helpers.c
+	$(CC) $(CFLAGS) -DNOUNDERSCORE -c -o r_helpers.o $(common)/r_helpers.c
 
 
 $(LIB)(Fork.o): $(common)/Fork.c $(common)/stddecl.h $(common)/sock.h
@@ -158,6 +163,7 @@ $(LIB): $(LIB)(Vegas.o)     \
 	$(LIB)(Cuhre.o)     \
 	$(LIB)(Fork.o)      \
 	$(LIB)(Global.o)    \
+	$(LIB)(r_helpers.o) \
 	$(LIB)(Data.o)
 	$(AR) $(ARFLAGS) $@ $^ 
 	-$(RM) $^
