@@ -317,7 +317,7 @@ enum { signature = 0x41425543 };
   } \
   if( fail | statemsg ) { \
     char s[512]; \
-    snprintf(s, sizof s, fail ?	      \
+    snprintf(s, sizeof s, fail ?	      \
       "\nError saving state to %s." : \
       "\nSaved state to %s.", (t)->statefile); \
     Print(s); \
