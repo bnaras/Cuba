@@ -5,6 +5,6 @@ void invoke_r_exit(void) {
 }
 
 void R_print(char *x) {
-  Rprintf(x);
+  Rprintf("%s\n", x);
 }
 
