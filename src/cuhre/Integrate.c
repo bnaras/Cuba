@@ -43,7 +43,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    sprintf(out, "Cuhre input parameters:\n"
+    snprintf(out, sizeof out, "Cuhre input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
       "  epsrel " REAL "\n  epsabs " REAL "\n"
@@ -124,11 +124,11 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     Bounds *bL, *bR;
 
     if( VERBOSE ) {
-      char *oe = out + sprintf(out, "\n"
+      char *oe = out + snprintf(out, sizeof out, "\n"
         "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
         t->nregions, t->neval);
       for( tot = state->totals, comp = 0; tot < Tot; ++tot )
-        oe += sprintf(oe, "\n[" COUNT "] "
+        oe += sprintf(oe, sizeof oe, "\n[" COUNT "] "
           REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
           ++comp, SHOW(tot->avg), SHOW(tot->err),
           SHOW(tot->chisq), t->nregions - 1);

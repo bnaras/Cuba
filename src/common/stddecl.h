@@ -290,7 +290,7 @@ enum { signature = 0x41425543 };
   } \
   if( ini | statemsg ) { \
     char s[512]; \
-    sprintf(s, ini ? \
+    snprintf(s, sizeof s, ini ?					  \
       "\nError restoring state from %s, starting from scratch." : \
       "\nRestored state from %s.", (t)->statefile); \
     Print(s); \
@@ -317,7 +317,7 @@ enum { signature = 0x41425543 };
   } \
   if( fail | statemsg ) { \
     char s[512]; \
-    sprintf(s, fail ? \
+    snprintf(s, sizof s, fail ?	      \
       "\nError saving state to %s." : \
       "\nSaved state to %s.", (t)->statefile); \
     Print(s); \
