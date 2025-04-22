@@ -100,7 +100,7 @@ enum { uninitialized = 0x61627563 };
       var = atoi(env); \
       if( cubaverb_ ) { \
         char out[64]; \
-        sprintf(out, "env " name " = %d", (int)var); \
+        snprintf(out, sizeof out, "env " name " = %d", (int)var);	\
         Print(out); \
       } \
     } \
