@@ -31,6 +31,25 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
+#ifdef _R_INTERFACE
+    R_print("Suave input parameters:\n"
+      "  ndim " COUNT "\n  ncomp " COUNT "\n"
+      ML_NOT("  nvec " NUMBER "\n")
+      "  epsrel " REAL "\n  epsabs " REAL "\n"
+      "  flags %d\n  seed %d\n"
+      "  mineval " NUMBER "\n  maxeval " NUMBER "\n"
+      "  nnew " NUMBER "\n  nmin " NUMBER "\n"
+      "  flatness " REAL "\n"
+      "  statefile \"%s\"",
+      t->ndim, t->ncomp,
+      ML_NOT(t->nvec,)
+      SHOW(t->epsrel), SHOW(t->epsabs),
+      t->flags, t->seed,
+      t->mineval, t->maxeval,
+      t->nnew, t->nmin,
+      SHOW(t->flatness),
+      t->statefile);
+#else
     sprintf(out, "Suave input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
@@ -49,6 +68,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       SHOW(t->flatness),
       t->statefile);
     Print(out);
+#endif    
   }
 
   if( BadComponent(t) ) return -2;
@@ -131,6 +151,16 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     real *w, *wL, *wR, *x, *xL, *xR, *f, *fL, *fR, *wlast, *flast;
 
     if( VERBOSE ) {
+#ifdef _R_INTERFACE
+      R_print("\n"
+        "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
+        t->nregions, t->neval);
+      for( tot = state->totals, comp = 0; tot < Tot; ++tot )
+        R_print("\n[" COUNT "] "
+          REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
+          ++comp, SHOW(tot->avg), SHOW(tot->err),
+          SHOW(tot->chisq), state->df);
+#else
       char *oe = out + sprintf(out, "\n"
         "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
         t->nregions, t->neval);
@@ -140,6 +170,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
           ++comp, SHOW(tot->avg), SHOW(tot->err),
           SHOW(tot->chisq), state->df);
       Print(out);
+#endif
     }
 
     maxratio = -INFTY;

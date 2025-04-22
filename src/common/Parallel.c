@@ -30,7 +30,6 @@ Extern void SUFFIX(cubawait)(Spin **);
 static inline void DoSampleParallel(This *t, number n, creal *x, real *f
   VES_ONLY(, creal *w, ccount iter))
 {
-  char out[128];
   Slice slice, rslice;
   fd_set ready;
   int core, abort, running = 0;
@@ -47,9 +46,15 @@ static inline void DoSampleParallel(This *t, number n, creal *x, real *f
   t->neval += n;
 
   if( VERBOSE > 2 ) {
+#ifdef _R_INTERFACE
+    R_print("sampling " NUMBER " points each on %d cores",
+	    pcores, ncores);
+#else
+    char out[128];
     sprintf(out, "sampling " NUMBER " points each on %d cores",
-      pcores, ncores);
+	    pcores, ncores);	    
     Print(out);
+#endif	    
   }
 
   slice.n = paccel;

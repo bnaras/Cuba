@@ -41,7 +41,6 @@ static inline void Child(cint fd, cint core)
 
 Extern void SUFFIX(cubafork)(Spin **pspin)
 {
-  char out[128];
   int cores, core;
   fdpid *pfp;
   Spin *spin;
@@ -74,14 +73,21 @@ Extern void SUFFIX(cubafork)(Spin **pspin)
   }
 
   if( cubaverb_ ) {
+#ifdef _R_INTERFACE
+    R_print("using %d cores %d accelerators via "
+#else
+    char out[128];
     sprintf(out, "using %d cores %d accelerators via "
+#endif
 #ifdef HAVE_SHMGET
       "shared memory",
 #else
       "pipes",
 #endif
       cubaworkers_.ncores, cubaworkers_.naccel);
+#ifndef _R_INTERFACE
     Print(out);
+#endif	   
   }
 
   fflush(NULL);		/* make sure all buffers are flushed,

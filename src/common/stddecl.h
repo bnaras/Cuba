@@ -92,6 +92,19 @@ void *alloca (size_t);
 
 enum { uninitialized = 0x61627563 };
 
+#ifdef _R_INTERFACE
+#define EnvInit(var, name, default) \
+  if( var == uninitialized ) { \
+    cchar *env = getenv(name); \
+    if( env == NULL ) var = default; \
+    else { \
+      var = atoi(env); \
+      if( cubaverb_ ) { \
+        R_print("env " name " = %d", (int)var); \
+      } \
+    } \
+  }
+#else
 #define EnvInit(var, name, default) \
   if( var == uninitialized ) { \
     cchar *env = getenv(name); \
@@ -105,6 +118,7 @@ enum { uninitialized = 0x61627563 };
       } \
     } \
   }
+#endif
 
 #define VerboseInit() EnvInit(cubaverb_, "CUBAVERBOSE", 0)
 #define MaxVerbose(flags) (flags + IDim(IMin(cubaverb_, 3) - ((flags) & 3)))
@@ -284,6 +298,18 @@ enum { signature = 0x41425543 };
 #define StateRead(fd, buf, size) \
   ini += size - read(fd, buf, size)
 
+#ifdef _R_INTERFACE
+#define StateReadClose(t, fd)			\
+    while( (--ini, 0) ); \
+    close(fd); \
+  } \
+  if( ini | statemsg ) { \
+    Rprint(ini ? \
+      "\nError restoring state from %s, starting from scratch." : \
+      "\nRestored state from %s.", (t)->statefile); \
+  } \
+} while( 0 )
+#else
 #define StateReadClose(t, fd) \
     while( (--ini, 0) ); \
     close(fd); \
@@ -296,7 +322,7 @@ enum { signature = 0x41425543 };
     Print(s); \
   } \
 } while( 0 )
-
+#endif
 
 #define StateWriteTest(t) ((t)->statefile)
 
@@ -310,6 +336,20 @@ enum { signature = 0x41425543 };
 #define StateWrite(fd, buf, size) \
   fail += size - write(fd, buf, size)
 
+#ifdef _R_INTERFACE
+#define StateWriteClose(t, fd) \
+    while( (--fail, 0) ); \
+    close(fd); \
+    if( fail == 0 ) fail |= rename(statefile_tmp, (t)->statefile); \
+  } \
+  if( fail | statemsg ) { \
+    Rprint(fail ? \
+      "\nError saving state to %s." : \
+      "\nSaved state to %s.", (t)->statefile); \
+    statemsg &= fail & -2; \
+  } \
+} while( 0 )
+#else
 #define StateWriteClose(t, fd) \
     while( (--fail, 0) ); \
     close(fd); \
@@ -324,7 +364,7 @@ enum { signature = 0x41425543 };
     statemsg &= fail & -2; \
   } \
 } while( 0 )
-
+#endif
 
 #define StateRemove(t) \
 if( fail == 0 && (t)->statefile && KEEPFILE == 0 ) unlink((t)->statefile)

@@ -36,6 +36,27 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
+#ifdef _R_INTERFACE
+    R_print(out, "Divonne input parameters:\n"
+      "  ndim " COUNT "\n  ncomp " COUNT "\n"
+      ML_NOT("  nvec " NUMBER "\n")
+      "  epsrel " REAL "\n  epsabs " REAL "\n"
+      "  flags %d\n  seed %d\n"
+      "  mineval " NUMBER "\n  maxeval " NUMBER "\n"
+      "  key1 %d\n  key2 %d\n  key3 %d\n  maxpass " COUNT "\n"
+      "  border " REAL "\n  maxchisq " REAL "\n  mindeviation " REAL "\n"
+      "  ngiven " NUMBER "\n  nextra " NUMBER "\n"
+      "  statefile \"%s\"",
+      t->ndim, t->ncomp,
+      ML_NOT(t->nvec,)
+      SHOW(t->epsrel), SHOW(t->epsabs),
+      t->flags, t->seed,
+      t->mineval, t->maxeval,
+      t->key1, t->key2, t->key3, t->maxpass,
+      SHOW(t->border.lower), SHOW(t->maxchisq), SHOW(t->mindeviation),
+      t->ngiven, t->nextra,
+      t->statefile);
+#else    
     sprintf(out, "Divonne input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
@@ -56,6 +77,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       t->ngiven, t->nextra,
       t->statefile);
     Print(out);
+#endif    
   }
 
   if( BadComponent(t) ) return -2;
@@ -189,6 +211,19 @@ if( StateWriteTest(t) ) { \
       WriteState(t);
 
       if( VERBOSE ) {
+#ifdef _R_INTERFACE
+        R_printf("\n"
+          "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
+          NUMBER7 " integrand evaluations so far,\n"
+          NUMBER7 " in optimizing regions,\n"
+          NUMBER7 " in finding cuts",
+          state->iter, state->pass, t->nregions,
+          t->neval, t->neval_opt, t->neval_cut);
+        for( comp = 0; comp < t->ncomp; ++comp )
+          R_print("\n[" COUNT "] "
+            REAL " +- " REAL,
+            comp + 1, SHOW(integral[comp]), SHOW(error[comp]));
+#else	
         char *oe = out + sprintf(out, "\n"
           "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
           NUMBER7 " integrand evaluations so far,\n"
@@ -201,6 +236,7 @@ if( StateWriteTest(t) ) { \
             REAL " +- " REAL,
             comp + 1, SHOW(integral[comp]), SHOW(error[comp]));
         Print(out);
+#endif	
       }
 
       if( valid == 0 ) goto abort;	/* all NaNs */
@@ -255,10 +291,16 @@ if( StateWriteTest(t) ) { \
     SamplesAlloc(t, &t->samples[1]);
 
     if( VERBOSE ) {
+#ifdef _R_INTERFACE
+      R_print("\nMain integration on " COUNT
+        " regions with " NUMBER " samples per region.",
+        t->nregions, t->samples[1].neff);
+#else      
       sprintf(out, "\nMain integration on " COUNT
         " regions with " NUMBER " samples per region.",
         t->nregions, t->samples[1].neff);
       Print(out);
+#endif      
     }
 
     nlimit = t->maxeval - t->nregions*t->samples[1].n;
@@ -325,10 +367,16 @@ refine:
                       can_adjust = false;
 
                     if( VERBOSE > 2 ) {
+#ifdef _R_INTERFACE
+                      R_print("Sampling remaining " COUNT
+			      " regions with " NUMBER " points per region.",
+			      t->nregions, t->samples[1].neff);
+#else
                       sprintf(out, "Sampling remaining " COUNT
                         " regions with " NUMBER " points per region.",
                         t->nregions, t->samples[1].neff);
                       Print(out);
+#endif		      
                     }
                   }
                 }
@@ -369,7 +417,11 @@ refine:
       if( VERBOSE > 2 ) {
         cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
         for( B = (b = region->bounds) + t->ndim; b < B; ++b ) {
+#ifdef _R_INTERFACE
+          R_print(msg, SHOW(b->lower), SHOW(b->upper));	  
+#else	  
           oe += sprintf(oe, msg, SHOW(b->lower), SHOW(b->upper));
+#endif	  
           msg = "\n       (" REALF ") - (" REALF ")";
         }
       }
@@ -408,12 +460,21 @@ refine:
         if( VERBOSE > 2 ) {
 #define Out2(f, r) SHOW((r)->avg), SHOW(res->spread/t->samples[f].neff), SHOW((r)->err)
 #define Out(f) Out2(f, &tot->phase[f])
+#ifdef _R_INTERFACE
+          R_print("\n[" COUNT "] "
+		  REAL " +- " REAL "(" REAL ")\n    "
+		  REAL " +- " REAL "(" REAL ")", ++comp, Out(0), Out(1));
+          if( todo == 3 ) R_print("\n    "
+				  REAL " +- " REAL "(" REAL ")", Out2(2, res));
+          R_print("  \tchisq " REAL, SHOW(chisq));
+#else	  
           oe += sprintf(oe, "\n[" COUNT "] "
             REAL " +- " REAL "(" REAL ")\n    "
             REAL " +- " REAL "(" REAL ")", ++comp, Out(0), Out(1));
           if( todo == 3 ) oe += sprintf(oe, "\n    "
             REAL " +- " REAL "(" REAL ")", Out2(2, res));
           oe += sprintf(oe, "  \tchisq " REAL, SHOW(chisq));
+#endif
         }
 
         tot->integral += avg;
@@ -440,6 +501,14 @@ refine:
     }
 
     if( VERBOSE > 2 ) {
+#ifdef _R_INTERFACE
+      R_printf("\nTotals:");
+      for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp )
+        R_print("\n[" COUNT "] "
+		REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
+		comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
+		SHOW(tot->chisq), df);
+#else      
       char *oe = out + sprintf(out, "\nTotals:");
       for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp )
         oe += sprintf(oe, "\n[" COUNT "] "
@@ -447,6 +516,7 @@ refine:
           comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
           SHOW(tot->chisq), df);
       Print(out);
+#endif      
     }
 
     ML_ONLY(neff = 1;)

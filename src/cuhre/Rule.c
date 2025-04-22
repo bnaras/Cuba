@@ -737,6 +737,21 @@ static void Sample(This *t, Region *region)
   }
 
   if( VERBOSE > 2 ) {
+#ifdef _R_INTERFACE
+    Vector(char, out, 64*NDIM + 128*NCOMP);
+    char *oe = out;
+    count comp;
+    cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
+
+    for( b = region->bounds; b < B; ++b ) {
+      R_print(msg, b->lower, b->upper);
+      msg = "\n       (" REALF ") - (" REALF ")";
+    }
+
+    for( res = result, comp = 0; res < Res; ++res )
+      R_print("\n[" COUNT "] "
+        REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
+#else    
     Vector(char, out, 64*NDIM + 128*NCOMP);
     char *oe = out;
     count comp;
@@ -752,6 +767,7 @@ static void Sample(This *t, Region *region)
         REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
 
     Print(out);
+#endif    
   }
 }
 

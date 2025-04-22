@@ -140,13 +140,12 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     Bounds *bL, *bR;
 
 #ifdef _R_INTERFACE
-    char   buf[BUF_SIZE];
     if( VERBOSE ) {
-      Rprintf(out, "\n"
+      R_print("\n"
 	      "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 	      t->nregions, t->neval);
       for( tot = state->totals, comp = 0; tot < Tot; ++tot )
-        Rprintf(oe, "\n[" COUNT "] "
+        R_print("\n[" COUNT "] "
 		REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
 		++comp, SHOW(tot->avg), SHOW(tot->err),
 		SHOW(tot->chisq), t->nregions - 1);
