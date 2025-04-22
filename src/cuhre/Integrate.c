@@ -43,21 +43,6 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-#ifdef _R_INTERFACE
-    R_print("Cuhre input parameters:\n"
-      "  ndim " COUNT "\n  ncomp " COUNT "\n"
-      ML_NOT("  nvec " NUMBER "\n")
-      "  epsrel " REAL "\n  epsabs " REAL "\n"
-      "  flags %d\n  mineval " NUMBER "\n  maxeval " NUMBER "\n"
-      "  key " COUNT "\n"
-      "  statefile \"%s\"",
-      t->ndim, t->ncomp,
-      ML_NOT(t->nvec,)
-      SHOW(t->epsrel), SHOW(t->epsabs),
-      t->flags, t->mineval, t->maxeval,
-      t->key,
-      t->statefile);
-#else    
     sprintf(out, "Cuhre input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
@@ -72,7 +57,6 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       t->key,
       t->statefile);
     Print(out);
-#endif
   }
 
   if( BadComponent(t) ) return -2;
@@ -139,19 +123,6 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     Region *regionL, *regionR;
     Bounds *bL, *bR;
 
-#ifdef _R_INTERFACE
-    char   buf[BUF_SIZE];
-    if( VERBOSE ) {
-      Rprintf(out, "\n"
-	      "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
-	      t->nregions, t->neval);
-      for( tot = state->totals, comp = 0; tot < Tot; ++tot )
-        Rprintf(oe, "\n[" COUNT "] "
-		REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
-		++comp, SHOW(tot->avg), SHOW(tot->err),
-		SHOW(tot->chisq), t->nregions - 1);
-    }
-#else    
     if( VERBOSE ) {
       char *oe = out + sprintf(out, "\n"
         "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
@@ -163,7 +134,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
           SHOW(tot->chisq), t->nregions - 1);
       Print(out);
     }
-#endif
+
     maxratio = -INFTY;
     maxcomp = 0;
     for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp ) {
