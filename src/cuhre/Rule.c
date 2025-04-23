@@ -738,18 +738,32 @@ static void Sample(This *t, Region *region)
 
   if( VERBOSE > 2 ) {
     Vector(char, out, 64*NDIM + 128*NCOMP);
+    size_t avail = sizeof out;    
     char *oe = out;
     count comp;
     cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
 
     for( b = region->bounds; b < B; ++b ) {
-      oe += sprintf(oe, msg, b->lower, b->upper);
+      int written = snprintf(oe, avail, msg, b->lower, b->upper);
+      if (written < 0) {
+	invoke_r_exit();
+      } else {
+	oe = oe + written;
+	avail = avail - written;
+      }
       msg = "\n       (" REALF ") - (" REALF ")";
     }
 
-    for( res = result, comp = 0; res < Res; ++res )
-      oe += sprintf(oe, "\n[" COUNT "] "
-        REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
+    for( res = result, comp = 0; res < Res; ++res ) {
+      int written = snprintf(oe, avail, "\n[" COUNT "] "
+			     REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
+      if (written < 0) {
+	invoke_r_exit();
+      } else {
+	oe = oe + written;
+	avail = avail - written;
+      }
+    }
 
     Print(out);
   }

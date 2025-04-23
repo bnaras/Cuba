@@ -36,7 +36,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    sprintf(out, "Divonne input parameters:\n"
+    snprintf(out, sizeof out, "Divonne input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
       "  epsrel " REAL "\n  epsabs " REAL "\n"
@@ -189,17 +189,32 @@ if( StateWriteTest(t) ) { \
       WriteState(t);
 
       if( VERBOSE ) {
-        char *oe = out + sprintf(out, "\n"
-          "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
-          NUMBER7 " integrand evaluations so far,\n"
-          NUMBER7 " in optimizing regions,\n"
-          NUMBER7 " in finding cuts",
-          state->iter, state->pass, t->nregions,
-          t->neval, t->neval_opt, t->neval_cut);
-        for( comp = 0; comp < t->ncomp; ++comp )
-          oe += sprintf(oe, "\n[" COUNT "] "
-            REAL " +- " REAL,
-            comp + 1, SHOW(integral[comp]), SHOW(error[comp]));
+	char *oe = out;
+	size_t avail = sizeof out;
+	int written = snprintf(out, avail, "\n"
+			       "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
+			       NUMBER7 " integrand evaluations so far,\n"
+			       NUMBER7 " in optimizing regions,\n"
+			       NUMBER7 " in finding cuts",
+			       state->iter, state->pass, t->nregions,
+			       t->neval, t->neval_opt, t->neval_cut);
+	if (written < 0) {
+	  invoke_r_exit();
+	} else {
+	  oe = oe + written;
+	  avail = avail - written;
+	}
+        for( comp = 0; comp < t->ncomp; ++comp ) {
+	  written = snprintf(oe, avail, "\n[" COUNT "] "
+			     REAL " +- " REAL,
+			     comp + 1, SHOW(integral[comp]), SHOW(error[comp])); 
+	  if (written < 0) {
+	    invoke_r_exit();
+	  } else {
+	    oe = oe + written;
+	    avail = avail - written;
+	  }
+	}
         Print(out);
       }
 
@@ -255,7 +270,7 @@ if( StateWriteTest(t) ) { \
     SamplesAlloc(t, &t->samples[1]);
 
     if( VERBOSE ) {
-      sprintf(out, "\nMain integration on " COUNT
+      snprintf(out, sizeof out, "\nMain integration on " COUNT
         " regions with " NUMBER " samples per region.",
         t->nregions, t->samples[1].neff);
       Print(out);

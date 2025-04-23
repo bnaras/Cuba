@@ -574,7 +574,11 @@ static inline void Print(MLCONST char *s)
 
 #else
 
+#ifdef _R_INTERFACE
+#define Print(s) R_print(s)
+#else
 #define Print(s) do { puts(s); fflush(stdout); } while( 0 )
+#endif
 
 #endif
 
