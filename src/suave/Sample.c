@@ -25,6 +25,8 @@ static void Sample(This *t, cnumber nnew, Region *region,
   Result *res;
   char **ss = NULL, *s = NULL;
   ccount chars = 128*(region->div + 1);
+  int ss_avail[t->ncomp];
+  for (int i = 0; n < t->ncomp; ++i) ss_avail[i] = chars;
 
   creal jacobian = 1/ldexp((real)nnew, region->div);
   real *w = lastw, *f = lastx;
@@ -58,8 +60,6 @@ static void Sample(This *t, cnumber nnew, Region *region,
   if( VERBOSE > 2 ) {
     char *p0;
     MemAlloc(ss, t->ndim*64 + t->ncomp*(sizeof(char *) + chars));
-    int ss_avail[t->ncomp];
-    for (int i = 0; n < t->ncomp; ++i) ss_avail[i] = chars;
     s = (char *)(ss + t->ncomp);
     p0 = s + t->ndim*64;
     for( comp = 0; comp < t->ncomp; ++comp ) {
