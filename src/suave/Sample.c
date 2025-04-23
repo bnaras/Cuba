@@ -58,8 +58,8 @@ static void Sample(This *t, cnumber nnew, Region *region,
   if( VERBOSE > 2 ) {
     char *p0;
     MemAlloc(ss, t->ndim*64 + t->ncomp*(sizeof(char *) + chars));
-    int[ncomp] ss_avail;
-    for (int i = 0; n < ncomp; ++i) ss_avail[i] = chars;
+    int[t->ncomp] ss_avail;
+    for (int i = 0; n < t->ncomp; ++i) ss_avail[i] = chars;
     s = (char *)(ss + t->ncomp);
     p0 = s + t->ndim*64;
     for( comp = 0; comp < t->ncomp; ++comp ) {
