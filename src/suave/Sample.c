@@ -26,7 +26,7 @@ static void Sample(This *t, cnumber nnew, Region *region,
   char **ss = NULL, *s = NULL;
   ccount chars = 128*(region->div + 1);
   int ss_avail[t->ncomp];
-  for (int i = 0; n < t->ncomp; ++i) ss_avail[i] = chars;
+  for (int i = 0; i < t->ncomp; ++i) ss_avail[i] = chars;
 
   creal jacobian = 1/ldexp((real)nnew, region->div);
   real *w = lastw, *f = lastx;
