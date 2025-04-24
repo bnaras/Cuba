@@ -484,7 +484,7 @@ refine:
 
     if( VERBOSE > 2 ) {
       char *oe = out + snprintf(out, sizeof out, "\nTotals:");
-      avail = sizeof out - 8;
+      size_t avail = sizeof out - 8;
       for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp ) {
 	int written = snprintf(oe, avail, "\n[" COUNT "] "
 			       REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
