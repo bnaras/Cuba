@@ -292,6 +292,7 @@ if( StateWriteTest(t) ) { \
     while( state->iregion < t->nregions ) {
       Region *region;
       char *oe = out;
+      size_t avail = sizeof out;
       int todo;
 
 refine:
@@ -340,7 +341,7 @@ refine:
                       can_adjust = false;
 
                     if( VERBOSE > 2 ) {
-                      sprintf(out, "Sampling remaining " COUNT
+                      snprintf(out, sizeof out, "Sampling remaining " COUNT
                         " regions with " NUMBER " points per region.",
                         t->nregions, t->samples[1].neff);
                       Print(out);
@@ -384,7 +385,13 @@ refine:
       if( VERBOSE > 2 ) {
         cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
         for( B = (b = region->bounds) + t->ndim; b < B; ++b ) {
-          oe += sprintf(oe, msg, SHOW(b->lower), SHOW(b->upper));
+	  int written = snprintf(oe, avail, msg, SHOW(b->lower), SHOW(b->upper));
+	  if (written < 0) {
+	    invoke_r_exit();
+	  } else {
+	    oe = oe + written;
+	    avail = avail - written;
+	  }
           msg = "\n       (" REALF ") - (" REALF ")";
         }
       }
@@ -423,12 +430,33 @@ refine:
         if( VERBOSE > 2 ) {
 #define Out2(f, r) SHOW((r)->avg), SHOW(res->spread/t->samples[f].neff), SHOW((r)->err)
 #define Out(f) Out2(f, &tot->phase[f])
-          oe += sprintf(oe, "\n[" COUNT "] "
+	  int written = snprintf(oe, avail, "\n[" COUNT "] "
             REAL " +- " REAL "(" REAL ")\n    "
             REAL " +- " REAL "(" REAL ")", ++comp, Out(0), Out(1));
-          if( todo == 3 ) oe += sprintf(oe, "\n    "
-            REAL " +- " REAL "(" REAL ")", Out2(2, res));
-          oe += sprintf(oe, "  \tchisq " REAL, SHOW(chisq));
+	  if (written < 0) {
+	    invoke_r_exit();
+	  } else {
+	    oe = oe + written;
+	    avail = avail - written;
+	  }
+
+          if( todo == 3 ) {
+	    written = sprintf(oe, avail, "\n    "
+				  REAL " +- " REAL "(" REAL ")", Out2(2, res));
+	    if (written < 0) {
+	      invoke_r_exit();
+	    } else {
+	      oe = oe + written;
+	      avail = avail - written;
+	    }
+	  }
+	  written = sprintf(oe, avail, "  \tchisq " REAL, SHOW(chisq));
+	    if (written < 0) {
+	      invoke_r_exit();
+	    } else {
+	      oe = oe + written;
+	      avail = avail - written;
+	    }
         }
 
         tot->integral += avg;
@@ -456,11 +484,19 @@ refine:
 
     if( VERBOSE > 2 ) {
       char *oe = out + sprintf(out, "\nTotals:");
-      for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp )
-        oe += sprintf(oe, "\n[" COUNT "] "
-          REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
-          comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
-          SHOW(tot->chisq), df);
+      avail = sizeof out - 8;
+      for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp ) {
+	int written = snprintf(oe, avail, "\n[" COUNT "] "
+			       REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
+			       comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
+			       SHOW(tot->chisq), df);
+	if (written < 0) {
+	  invoke_r_exit();
+	} else {
+	  oe = oe + written;
+	  avail = avail - written;
+	}
+      }
       Print(out);
     }
 
