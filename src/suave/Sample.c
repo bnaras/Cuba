@@ -100,7 +100,7 @@ static void Sample(This *t, cnumber nnew, Region *region,
 	      invoke_r_exit();
 	    } else {
 	      ss[comp] += written;
-	      avail -= written;
+	      ss_avail[comp] -= written;
 	    }
           }
 
