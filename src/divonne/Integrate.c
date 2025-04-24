@@ -441,8 +441,8 @@ refine:
 	  }
 
           if( todo == 3 ) {
-	    written = sprintf(oe, avail, "\n    "
-				  REAL " +- " REAL "(" REAL ")", Out2(2, res));
+	    written = snprintf(oe, avail, "\n    "
+			       REAL " +- " REAL "(" REAL ")", Out2(2, res));
 	    if (written < 0) {
 	      invoke_r_exit();
 	    } else {
@@ -450,7 +450,7 @@ refine:
 	      avail = avail - written;
 	    }
 	  }
-	  written = sprintf(oe, avail, "  \tchisq " REAL, SHOW(chisq));
+	  written = snprintf(oe, avail, "  \tchisq " REAL, SHOW(chisq));
 	    if (written < 0) {
 	      invoke_r_exit();
 	    } else {
@@ -483,7 +483,7 @@ refine:
     }
 
     if( VERBOSE > 2 ) {
-      char *oe = out + sprintf(out, "\nTotals:");
+      char *oe = out + snprintf(out, sizeof out, "\nTotals:");
       avail = sizeof out - 8;
       for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp ) {
 	int written = snprintf(oe, avail, "\n[" COUNT "] "
