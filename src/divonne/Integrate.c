@@ -36,7 +36,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    std::sprintf(out, "Divonne input parameters:\n"
+    snprintf(out, sizeof out, "Divonne input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
       "  epsrel " REAL "\n  epsabs " REAL "\n"
@@ -189,17 +189,32 @@ if( StateWriteTest(t) ) { \
       WriteState(t);
 
       if( VERBOSE ) {
-        char *oe = out + std::sprintf(out, "\n"
-          "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
-          NUMBER7 " integrand evaluations so far,\n"
-          NUMBER7 " in optimizing regions,\n"
-          NUMBER7 " in finding cuts",
-          state->iter, state->pass, t->nregions,
-          t->neval, t->neval_opt, t->neval_cut);
-        for( comp = 0; comp < t->ncomp; ++comp )
-          oe += std::sprintf(oe, "\n[" COUNT "] "
-            REAL " +- " REAL,
-            comp + 1, SHOW(integral[comp]), SHOW(error[comp]));
+	char *oe = out;
+	size_t avail = sizeof out;
+	int written = snprintf(out, avail, "\n"
+			       "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
+			       NUMBER7 " integrand evaluations so far,\n"
+			       NUMBER7 " in optimizing regions,\n"
+			       NUMBER7 " in finding cuts",
+			       state->iter, state->pass, t->nregions,
+			       t->neval, t->neval_opt, t->neval_cut);
+	if (written < 0) {
+	  invoke_r_exit();
+	} else {
+	  oe = oe + written;
+	  avail = avail - written;
+	}
+        for( comp = 0; comp < t->ncomp; ++comp ) {
+	  written = snprintf(oe, avail, "\n[" COUNT "] "
+			     REAL " +- " REAL,
+			     comp + 1, SHOW(integral[comp]), SHOW(error[comp])); 
+	  if (written < 0) {
+	    invoke_r_exit();
+	  } else {
+	    oe = oe + written;
+	    avail = avail - written;
+	  }
+	}
         Print(out);
       }
 
@@ -255,7 +270,7 @@ if( StateWriteTest(t) ) { \
     SamplesAlloc(t, &t->samples[1]);
 
     if( VERBOSE ) {
-      std::sprintf(out, "\nMain integration on " COUNT
+      snprintf(out, sizeof out, "\nMain integration on " COUNT
         " regions with " NUMBER " samples per region.",
         t->nregions, t->samples[1].neff);
       Print(out);
@@ -277,6 +292,7 @@ if( StateWriteTest(t) ) { \
     while( state->iregion < t->nregions ) {
       Region *region;
       char *oe = out;
+      size_t avail = sizeof out;
       int todo;
 
 refine:
@@ -325,7 +341,7 @@ refine:
                       can_adjust = false;
 
                     if( VERBOSE > 2 ) {
-                      std::sprintf(out, "Sampling remaining " COUNT
+                      snprintf(out, sizeof out, "Sampling remaining " COUNT
                         " regions with " NUMBER " points per region.",
                         t->nregions, t->samples[1].neff);
                       Print(out);
@@ -369,7 +385,13 @@ refine:
       if( VERBOSE > 2 ) {
         cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
         for( B = (b = region->bounds) + t->ndim; b < B; ++b ) {
-          oe += std::sprintf(oe, msg, SHOW(b->lower), SHOW(b->upper));
+	  int written = snprintf(oe, avail, msg, SHOW(b->lower), SHOW(b->upper));
+	  if (written < 0) {
+	    invoke_r_exit();
+	  } else {
+	    oe = oe + written;
+	    avail = avail - written;
+	  }
           msg = "\n       (" REALF ") - (" REALF ")";
         }
       }
@@ -408,12 +430,33 @@ refine:
         if( VERBOSE > 2 ) {
 #define Out2(f, r) SHOW((r)->avg), SHOW(res->spread/t->samples[f].neff), SHOW((r)->err)
 #define Out(f) Out2(f, &tot->phase[f])
-          oe += std::sprintf(oe, "\n[" COUNT "] "
+	  int written = snprintf(oe, avail, "\n[" COUNT "] "
             REAL " +- " REAL "(" REAL ")\n    "
             REAL " +- " REAL "(" REAL ")", ++comp, Out(0), Out(1));
-          if( todo == 3 ) oe += std::sprintf(oe, "\n    "
-            REAL " +- " REAL "(" REAL ")", Out2(2, res));
-          oe += std::sprintf(oe, "  \tchisq " REAL, SHOW(chisq));
+	  if (written < 0) {
+	    invoke_r_exit();
+	  } else {
+	    oe = oe + written;
+	    avail = avail - written;
+	  }
+
+          if( todo == 3 ) {
+	    written = snprintf(oe, avail, "\n    "
+			       REAL " +- " REAL "(" REAL ")", Out2(2, res));
+	    if (written < 0) {
+	      invoke_r_exit();
+	    } else {
+	      oe = oe + written;
+	      avail = avail - written;
+	    }
+	  }
+	  written = snprintf(oe, avail, "  \tchisq " REAL, SHOW(chisq));
+	    if (written < 0) {
+	      invoke_r_exit();
+	    } else {
+	      oe = oe + written;
+	      avail = avail - written;
+	    }
         }
 
         tot->integral += avg;
@@ -440,12 +483,20 @@ refine:
     }
 
     if( VERBOSE > 2 ) {
-      char *oe = out + std::sprintf(out, "\nTotals:");
-      for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp )
-        oe += std::sprintf(oe, "\n[" COUNT "] "
-          REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
-          comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
-          SHOW(tot->chisq), df);
+      char *oe = out + snprintf(out, sizeof out, "\nTotals:");
+      size_t avail = sizeof out - 8;
+      for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp ) {
+	int written = snprintf(oe, avail, "\n[" COUNT "] "
+			       REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
+			       comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
+			       SHOW(tot->chisq), df);
+	if (written < 0) {
+	  invoke_r_exit();
+	} else {
+	  oe = oe + written;
+	  avail = avail - written;
+	}
+      }
       Print(out);
     }
 

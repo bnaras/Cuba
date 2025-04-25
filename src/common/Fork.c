@@ -5,8 +5,6 @@
 		by Thomas Hahn
 		last modified 30 Oct 20 th
 */
-
-
 #define ROUTINE "cubafork"
 #include "stddecl.h"
 
@@ -76,7 +74,7 @@ Extern void SUFFIX(cubafork)(Spin **pspin)
   }
 
   if( cubaverb_ ) {
-    std::sprintf(out, "using %d cores %d accelerators via "
+    snprintf(out, sizeof out, "using %d cores %d accelerators via "
 #ifdef HAVE_SHMGET
       "shared memory",
 #else
@@ -103,7 +101,11 @@ Extern void SUFFIX(cubafork)(Spin **pspin)
       close(fd[0]);
       free(spin);
       Child(fd[1], core);
-      // exit(0);  // Not needed when called from R
+#ifdef _R_INTERFACE
+      invoke_r_exit();
+#else      
+      exit(0);
+#endif
     }
     MASTER("forked pid %d pipe %d(master) -> %d(worker)",
       pid, fd[0], fd[1]);

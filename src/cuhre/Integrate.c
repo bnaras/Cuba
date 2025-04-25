@@ -43,7 +43,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    std::sprintf(out, "Cuhre input parameters:\n"
+    snprintf(out, sizeof out, "Cuhre input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
       "  epsrel " REAL "\n  epsabs " REAL "\n"
@@ -124,14 +124,29 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     Bounds *bL, *bR;
 
     if( VERBOSE ) {
-      char *oe = out + std::sprintf(out, "\n"
-        "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
-        t->nregions, t->neval);
-      for( tot = state->totals, comp = 0; tot < Tot; ++tot )
-        oe += std::sprintf(oe, "\n[" COUNT "] "
-          REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
-          ++comp, SHOW(tot->avg), SHOW(tot->err),
-          SHOW(tot->chisq), t->nregions - 1);
+      char *oe = out;
+      size_t avail = sizeof out;
+      int written = snprintf(out, avail, "\n"
+			     "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
+			     t->nregions, t->neval);
+      if (written < 0) {
+	invoke_r_exit();
+      } else {
+	oe = oe + written;
+	avail = avail - written;
+      }
+      for(tot = state->totals, comp = 0; tot < Tot; ++tot) {
+	written = snprintf(oe, avail, "\n[" COUNT "] "
+			   REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
+			   ++comp, SHOW(tot->avg), SHOW(tot->err),
+			   SHOW(tot->chisq), t->nregions - 1);
+	if (written < 0) {
+	  invoke_r_exit();
+	} else {
+	  oe = oe + written;
+	  avail = avail - written;
+	}
+      }
       Print(out);
     }
 

@@ -4,8 +4,8 @@
 		last modified 28 Jun 21 th
 */
 
-#ifdef _R_INTERFACE_
-#include <Rcpp.h>
+#ifdef _R_INTERFACE
+#include <r_helpers.h>
 #endif
 
 #ifndef _stddecl_h_
@@ -100,7 +100,7 @@ enum { uninitialized = 0x61627563 };
       var = atoi(env); \
       if( cubaverb_ ) { \
         char out[64]; \
-	std::sprintf(out, "env " name " = %d", (int)var);	\
+        snprintf(out, sizeof out, "env " name " = %d", (int)var);	\
         Print(out); \
       } \
     } \
@@ -159,15 +159,10 @@ enum { uninitialized = 0x61627563 };
 
 #define Abort(s) abort1(s, __LINE__)
 #define abort1(s, line) abort2(s, line)
-#ifndef _R_INTERFACE_
-#define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); exit(1); }
+#ifdef _R_INTERFACE
+#define abort2(s, line) do { perror(s " " __FILE__ "(" #line ")"); invoke_r_exit(); } while(0)
 #else
-#define abort2(s, line) \
-  do {			\
-    char buf[1024]; \
-    std::snprintf(buf, sizeof(buf), s " " __FILE__ "(" #line ")");
-    Rcpp::warning(buf); \
-} while(0)
+#define abort2(s, line) { perror(s " " __FILE__ "(" #line ")"); exit(1); }
 #endif
 
 #define Die(p) if( (p) == NULL ) Abort("malloc")
@@ -295,7 +290,7 @@ enum { signature = 0x41425543 };
   } \
   if( ini | statemsg ) { \
     char s[512]; \
-    std::sprintf(s, ini ?					  \
+    snprintf(s, sizeof s, ini ?					  \
       "\nError restoring state from %s, starting from scratch." : \
       "\nRestored state from %s.", (t)->statefile); \
     Print(s); \
@@ -322,7 +317,7 @@ enum { signature = 0x41425543 };
   } \
   if( fail | statemsg ) { \
     char s[512]; \
-    std::sprintf(s, fail ?	      \
+    snprintf(s, sizeof s, fail ?	      \
       "\nError saving state to %s." : \
       "\nSaved state to %s.", (t)->statefile); \
     Print(s); \
@@ -579,10 +574,10 @@ static inline void Print(MLCONST char *s)
 
 #else
 
-#ifndef _R_INTERFACE_
-#define Print(s) do { puts(s); fflush(stdout); } while( 0 )
+#ifdef _R_INTERFACE
+#define Print(s) R_print(s)
 #else
-#define Print(s) do { Rcpp::Rcout << s << std::endl; } while( 0 )
+#define Print(s) do { puts(s); fflush(stdout); } while( 0 )
 #endif
 
 #endif
