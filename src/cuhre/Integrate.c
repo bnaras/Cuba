@@ -128,25 +128,27 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     if( VERBOSE ) {
       char *oe = out;
       size_t avail = sizeof out;
-      printf("Integrate:  snsprintf %ld \n", avail);                  
+      printf("If Integrate:  snsprintf %ld \n", avail);                  
       int written = snprintf(out, avail, "\n"
 			     "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 			     t->nregions, t->neval);
-      printf("Integrate: After snsprintf %ld \n", written);      
+      printf("If Integrate: After snsprintf %ld \n", written);      
       if (written < 0 || written >= avail) {
+	printf("If Calling R exit\n");
 	invoke_r_exit();
       } else {
 	oe = oe + written;
 	avail = avail - written;
       }
       for(tot = state->totals, comp = 0; tot < Tot; ++tot) {
-	printf("Integrate:  snsprintf %ld \n", avail);                  	
+	printf("Integrate:  snsprintf %ld \n", avail); 
 	written = snprintf(oe, avail, "\n[" COUNT "] "
 			   REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
 			   ++comp, SHOW(tot->avg), SHOW(tot->err),
 			   SHOW(tot->chisq), t->nregions - 1);
 	printf("Integrate: After snsprintf %ld \n", written);      
 	if (written < 0 || written >= avail) {
+	  printf("Calling R exit\n");	  
 	  invoke_r_exit();
 	} else {
 	  oe = oe + written;
