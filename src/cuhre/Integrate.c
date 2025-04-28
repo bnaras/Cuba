@@ -61,6 +61,8 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     Print(out);
   }
 
+  printf("After First Integrate\n");      
+
   if( BadComponent(t) ) return -2;
   if( BadDimension(t) ) return -1;
 
