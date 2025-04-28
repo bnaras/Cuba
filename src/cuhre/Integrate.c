@@ -136,14 +136,14 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       safe_sprintf(&oe, &avail, "\n"
 		   "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 		   t->nregions, t->neval);
-      printf("Second Integrate: After snsprintf %ld \n", written);      
+      printf("Second Integrate: After snsprintf\n");      
       for(tot = state->totals, comp = 0; tot < Tot; ++tot) {
 	printf("For Integrate:  snsprintf %ld \n", avail); 
 	safe_sprintf(&oe, &avail, "\n[" COUNT "] "
 		     REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
 		     ++comp, SHOW(tot->avg), SHOW(tot->err),
 		     SHOW(tot->chisq), t->nregions - 1);
-	printf("For Integrate: After snsprintf %ld \n", written);      
+	printf("For Integrate: After snsprintf \n");      
       }
       Print(out);
     }
