@@ -1,6 +1,10 @@
 #ifndef _RCUBA_HELPER
 #define _RCUBA_HELPER
 
+#include <stdio.h>
+#include <stdarg.h>
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
