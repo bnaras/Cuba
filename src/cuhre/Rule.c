@@ -747,7 +747,7 @@ static void Sample(This *t, Region *region)
       printf("Rule: Before snsprintf %ld \n", avail);            
       int written = snprintf(oe, avail, msg, b->lower, b->upper);
       printf("Rule: After snsprintf %ld \n", written);      
-      if (written < 0) {
+      if (written < 0 || written >= avail) {
 	invoke_r_exit();
       } else {
 	oe = oe + written;
@@ -761,7 +761,7 @@ static void Sample(This *t, Region *region)
       int written = snprintf(oe, avail, "\n[" COUNT "] "
 			     REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
       printf("Rule: After snsprintf %ld \n", written);      
-      if (written < 0) {
+      if (written < 0 || written >= avail) {
 	invoke_r_exit();
       } else {
 	oe = oe + written;

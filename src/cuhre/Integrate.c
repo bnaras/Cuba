@@ -133,7 +133,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
 			     "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 			     t->nregions, t->neval);
       printf("Integrate: After snsprintf %ld \n", written);      
-      if (written < 0) {
+      if (written < 0 || written >= avail) {
 	invoke_r_exit();
       } else {
 	oe = oe + written;
@@ -146,7 +146,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
 			   ++comp, SHOW(tot->avg), SHOW(tot->err),
 			   SHOW(tot->chisq), t->nregions - 1);
 	printf("Integrate: After snsprintf %ld \n", written);      
-	if (written < 0) {
+	if (written < 0 || written >= avail) {
 	  invoke_r_exit();
 	} else {
 	  oe = oe + written;
