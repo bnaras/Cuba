@@ -744,9 +744,9 @@ static void Sample(This *t, Region *region)
     cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
 
     for( b = region->bounds; b < B; ++b ) {
-      printf("Before snsprintf %ld \n", avail);            
+      printf("Rule: Before snsprintf %ld \n", avail);            
       int written = snprintf(oe, avail, msg, b->lower, b->upper);
-      printf("After snsprintf %ld \n", written);      
+      printf("Rule: After snsprintf %ld \n", written);      
       if (written < 0) {
 	invoke_r_exit();
       } else {
@@ -757,10 +757,10 @@ static void Sample(This *t, Region *region)
     }
 
     for( res = result, comp = 0; res < Res; ++res ) {
-      printf("Before snsprintf %ld \n", avail);                  
+      printf("Rule: Before snsprintf %ld \n", avail);                  
       int written = snprintf(oe, avail, "\n[" COUNT "] "
 			     REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
-      printf("After snsprintf %ld \n", written);      
+      printf("Rule: After snsprintf %ld \n", written);      
       if (written < 0) {
 	invoke_r_exit();
       } else {
