@@ -59,7 +59,8 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       t->flags, t->mineval, t->maxeval,
       t->key,
       t->statefile);
-    printf("First Integrate: After snsprintf\n");    
+    printf("First Integrate: After snsprintf\n");
+    printf(oe);
     Print(out);
   }
 
