@@ -43,7 +43,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    printf("Before snsprintf %d\n", sizeof out);
+    printf("Before snsprintf %ld\n", sizeof out);
     snprintf(out, sizeof out, "Cuhre input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
@@ -128,11 +128,11 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     if( VERBOSE ) {
       char *oe = out;
       size_t avail = sizeof out;
-      printf("Before snsprintf %d \n", avail);                  
+      printf("Before snsprintf %ld \n", avail);                  
       int written = snprintf(out, avail, "\n"
 			     "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 			     t->nregions, t->neval);
-      printf("After snsprintf %d \n", written);      
+      printf("After snsprintf %ld \n", written);      
       if (written < 0) {
 	invoke_r_exit();
       } else {
@@ -140,12 +140,12 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
 	avail = avail - written;
       }
       for(tot = state->totals, comp = 0; tot < Tot; ++tot) {
-	printf("Before snsprintf %d \n", avail);                  	
+	printf("Before snsprintf %ld \n", avail);                  	
 	written = snprintf(oe, avail, "\n[" COUNT "] "
 			   REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
 			   ++comp, SHOW(tot->avg), SHOW(tot->err),
 			   SHOW(tot->chisq), t->nregions - 1);
-	printf("After snsprintf %d \n", written);      
+	printf("After snsprintf %ld \n", written);      
 	if (written < 0) {
 	  invoke_r_exit();
 	} else {
