@@ -43,7 +43,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   int fail;
 
   if( VERBOSE > 1 ) {
-    printf("Integrate: Before snsprintf %ld\n", sizeof out);
+    printf("First Integrate: Before snsprintf %ld\n", sizeof out);
     snprintf(out, sizeof out, "Cuhre input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
@@ -57,7 +57,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       t->flags, t->mineval, t->maxeval,
       t->key,
       t->statefile);
-    printf("Integrate: After snsprintf\n");    
+    printf("First Integrate: After snsprintf\n");    
     Print(out);
   }
 
@@ -128,11 +128,11 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     if( VERBOSE ) {
       char *oe = out;
       size_t avail = sizeof out;
-      printf("If Integrate:  snsprintf %ld \n", avail);                  
+      printf("Second Integrate:  snsprintf %ld \n", avail);                  
       int written = snprintf(out, avail, "\n"
 			     "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 			     t->nregions, t->neval);
-      printf("If Integrate: After snsprintf %ld \n", written);      
+      printf("Second Integrate: After snsprintf %ld \n", written);      
       if (written < 0 || written >= avail) {
 	printf("If Calling R exit\n");
 	invoke_r_exit();
@@ -141,12 +141,12 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
 	avail = avail - written;
       }
       for(tot = state->totals, comp = 0; tot < Tot; ++tot) {
-	printf("Integrate:  snsprintf %ld \n", avail); 
+	printf("For Integrate:  snsprintf %ld \n", avail); 
 	written = snprintf(oe, avail, "\n[" COUNT "] "
 			   REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
 			   ++comp, SHOW(tot->avg), SHOW(tot->err),
 			   SHOW(tot->chisq), t->nregions - 1);
-	printf("Integrate: After snsprintf %ld \n", written);      
+	printf("For Integrate: After snsprintf %ld \n", written);      
 	if (written < 0 || written >= avail) {
 	  printf("Calling R exit\n");	  
 	  invoke_r_exit();
