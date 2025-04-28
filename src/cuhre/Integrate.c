@@ -60,7 +60,7 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       t->key,
       t->statefile);
     printf("First Integrate: After snsprintf\n");
-    printf(oe);
+    printf("%s\n", oe);
     Print(out);
   }
 
@@ -137,14 +137,16 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       safe_sprintf(&oe, &avail, "\n"
 		   "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 		   t->nregions, t->neval);
-      printf("Second Integrate: After snsprintf avail: %ld \n", avail);      
+      printf("Second Integrate: After snsprintf avail: %ld \n", avail);
+      printf("%s\n", oe);      
       for(tot = state->totals, comp = 0; tot < Tot; ++tot) {
 	printf("For Integrate:  snsprintf avail: %ld \n", avail); 
 	safe_sprintf(&oe, &avail, "\n[" COUNT "] "
 		     REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
 		     ++comp, SHOW(tot->avg), SHOW(tot->err),
 		     SHOW(tot->chisq), t->nregions - 1);
-	printf("For Integrate: After snsprintf avail: %ld\n", avail);      
+	printf("For Integrate: After snsprintf avail: %ld\n", avail);
+	printf("%s\n", oe);
       }
       Print(out);
     }
