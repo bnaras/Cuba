@@ -24,7 +24,9 @@ void R_print(char *x) {
 void safe_sprintf(char **poe, size_t *pavail, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
+  printf("Before vsnprintf avail = %zu\n", *pavail);
   int n = vsnprintf(*poe, *pavail, fmt, ap);
+  printf("After vsnprintf n = %d\n", n);
   va_end(ap);
   
   /* vsnprintf returns <0 on encoding error, or the number it WOULD
@@ -36,5 +38,6 @@ void safe_sprintf(char **poe, size_t *pavail, const char *fmt, ...) {
   /* advance write pointer and shrink remaining space */
   *poe    += n;
   *pavail -= (size_t)n;
+  printf("Updated avail = %zu\n", *pavail);  
 }
 
