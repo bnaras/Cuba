@@ -7,6 +7,9 @@
 		checkpointing by B. Chokoufe
 		last modified 25 Nov 20 th
 */
+#ifdef _R_INTERFACE
+#include <R.h>
+#endif
 
 
 typedef struct {
@@ -191,29 +194,17 @@ if( StateWriteTest(t) ) { \
       if( VERBOSE ) {
 	char *oe = out;
 	size_t avail = sizeof out;
-	int written = snprintf(out, avail, "\n"
-			       "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
-			       NUMBER7 " integrand evaluations so far,\n"
-			       NUMBER7 " in optimizing regions,\n"
-			       NUMBER7 " in finding cuts",
-			       state->iter, state->pass, t->nregions,
-			       t->neval, t->neval_opt, t->neval_cut);
-	if (written < 0) {
-	  invoke_r_exit();
-	} else {
-	  oe = oe + written;
-	  avail = avail - written;
-	}
+	safe_sprintf(&oe, &avail, "\n"
+		     "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
+		     NUMBER7 " integrand evaluations so far,\n"
+		     NUMBER7 " in optimizing regions,\n"
+		     NUMBER7 " in finding cuts",
+		     state->iter, state->pass, t->nregions,
+		     t->neval, t->neval_opt, t->neval_cut);
         for( comp = 0; comp < t->ncomp; ++comp ) {
-	  written = snprintf(oe, avail, "\n[" COUNT "] "
-			     REAL " +- " REAL,
-			     comp + 1, SHOW(integral[comp]), SHOW(error[comp])); 
-	  if (written < 0) {
-	    invoke_r_exit();
-	  } else {
-	    oe = oe + written;
-	    avail = avail - written;
-	  }
+	  safe_sprintf(&oe, &avail, "\n[" COUNT "] "
+		       REAL " +- " REAL,
+		       comp + 1, SHOW(integral[comp]), SHOW(error[comp])); 
 	}
         Print(out);
       }
@@ -385,13 +376,7 @@ refine:
       if( VERBOSE > 2 ) {
         cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
         for( B = (b = region->bounds) + t->ndim; b < B; ++b ) {
-	  int written = snprintf(oe, avail, msg, SHOW(b->lower), SHOW(b->upper));
-	  if (written < 0) {
-	    invoke_r_exit();
-	  } else {
-	    oe = oe + written;
-	    avail = avail - written;
-	  }
+	  safe_sprintf(&oe, &avail, msg, SHOW(b->lower), SHOW(b->upper));
           msg = "\n       (" REALF ") - (" REALF ")";
         }
       }
@@ -430,33 +415,15 @@ refine:
         if( VERBOSE > 2 ) {
 #define Out2(f, r) SHOW((r)->avg), SHOW(res->spread/t->samples[f].neff), SHOW((r)->err)
 #define Out(f) Out2(f, &tot->phase[f])
-	  int written = snprintf(oe, avail, "\n[" COUNT "] "
-            REAL " +- " REAL "(" REAL ")\n    "
-            REAL " +- " REAL "(" REAL ")", ++comp, Out(0), Out(1));
-	  if (written < 0) {
-	    invoke_r_exit();
-	  } else {
-	    oe = oe + written;
-	    avail = avail - written;
-	  }
+	  safe_sprintf(&oe, &avail, "\n[" COUNT "] "
+		       REAL " +- " REAL "(" REAL ")\n    "
+		       REAL " +- " REAL "(" REAL ")", ++comp, Out(0), Out(1));
 
           if( todo == 3 ) {
-	    written = snprintf(oe, avail, "\n    "
-			       REAL " +- " REAL "(" REAL ")", Out2(2, res));
-	    if (written < 0) {
-	      invoke_r_exit();
-	    } else {
-	      oe = oe + written;
-	      avail = avail - written;
-	    }
+	    safe_sprintf(&oe, &avail, "\n    "
+			 REAL " +- " REAL "(" REAL ")", Out2(2, res));
 	  }
-	  written = snprintf(oe, avail, "  \tchisq " REAL, SHOW(chisq));
-	    if (written < 0) {
-	      invoke_r_exit();
-	    } else {
-	      oe = oe + written;
-	      avail = avail - written;
-	    }
+	  safe_sprintf(&oe, &avail, "  \tchisq " REAL, SHOW(chisq));
         }
 
         tot->integral += avg;
@@ -483,19 +450,14 @@ refine:
     }
 
     if( VERBOSE > 2 ) {
-      char *oe = out + snprintf(out, sizeof out, "\nTotals:");
-      size_t avail = sizeof out - 8;
+      char *oe = out;
+      size_t avail = sizeof out;
+      safe_sprintf(&oe, &avail, "\nTotals:");
       for( tot = state->totals, comp = 0; tot < Tot; ++tot, ++comp ) {
-	int written = snprintf(oe, avail, "\n[" COUNT "] "
-			       REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
-			       comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
-			       SHOW(tot->chisq), df);
-	if (written < 0) {
-	  invoke_r_exit();
-	} else {
-	  oe = oe + written;
-	  avail = avail - written;
-	}
+	safe_sprintf(&oe, &avail, "\n[" COUNT "] "
+		     REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
+		     comp + 1, SHOW(integral[comp]), SHOW(error[comp]),
+		     SHOW(tot->chisq), df);
       }
       Print(out);
     }
