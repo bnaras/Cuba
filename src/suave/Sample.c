@@ -29,8 +29,8 @@ static void Sample(This *t, cnumber nnew, Region *region,
   Result *res;
   char **ss = NULL, *s = NULL;
   ccount chars = 128*(region->div + 1);
-  int ss_avail[t->ncomp];
-  for (int i = 0; i < t->ncomp; ++i) ss_avail[i] = chars;
+  size_t ss_avail[t->ncomp];
+  for (int i = 0; i < t->ncomp; ++i) ss_avail[i] = (size_t) chars;
 
   creal jacobian = 1/ldexp((real)nnew, region->div);
   real *w = lastw, *f = lastx;
@@ -98,7 +98,7 @@ static void Sample(This *t, cnumber nnew, Region *region,
 			   REAL " +- " REAL " (" NUMBER ")", comp + 1,
 			   SHOW(c->sum), SHOW(sig), n) :
 	    } else {
-	      safe_printf(&ss[comp], &ss_avail[comp], "\n    "
+	      safe_sprintf(&ss[comp], &ss_avail[comp], "\n    "
 			  REAL " +- " REAL " (" NUMBER ")",
 			  SHOW(c->sum), SHOW(sig), n);
 	    }
