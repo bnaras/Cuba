@@ -5,6 +5,9 @@
 		checkpointing by B. Chokoufe
 		last modified 13 Mar 15 th
 */
+#ifdef _R_INTERFACE
+#include <R.h>
+#endif
 
 
 typedef struct {
@@ -133,26 +136,14 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     if( VERBOSE ) {
       char *oe = out;
       size_t avail = sizeof out;
-      int written = snprintf(out, avail, "\n"
-			     "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
-			     t->nregions, t->neval);
-      if (written < 0) {
-	invoke_r_exit();
-      } else {
-	oe = oe + written;
-	avail = avail - written;
-      }
+      safe_sprintf(&oe, &avail, "\n"
+		   "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
+		   t->nregions, t->neval);
       for( tot = state->totals, comp = 0; tot < Tot; ++tot ) {
-	written = snprintf(oe, avail, "\n[" COUNT "] "
-			   REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
-			   ++comp, SHOW(tot->avg), SHOW(tot->err),
-			   SHOW(tot->chisq), state->df);
-	if (written < 0) {
-	  invoke_r_exit();
-	} else {
-	  oe = oe + written;
-	  avail = avail - written;
-	}
+	safe_sprintf(&oe, &avail, "\n[" COUNT "] "
+		     REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
+		     ++comp, SHOW(tot->avg), SHOW(tot->err),
+		     SHOW(tot->chisq), state->df);
       }
       Print(out);
     }

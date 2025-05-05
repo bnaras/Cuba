@@ -6,7 +6,9 @@
 		this file is part of Cuhre
 		last modified 7 May 15 th
 */
-
+#ifdef _R_INTERFACE
+#include <R.h>
+#endif
 
 #define NextSet(p) p = (Set *)((char *)p + setsize)
 #define IndexSet(p, n) ((Set *)((char *)p + n*setsize))
@@ -745,28 +747,13 @@ static void Sample(This *t, Region *region)
 
     for( b = region->bounds; b < B; ++b ) {
       printf("Rule: Before snsprintf %ld \n", avail);            
-      int written = snprintf(oe, avail, msg, b->lower, b->upper);
-      printf("Rule: After snsprintf %ld \n", written);      
-      if (written < 0 || written >= avail) {
-	invoke_r_exit();
-      } else {
-	oe = oe + written;
-	avail = avail - written;
-      }
+      safe_sprintf(&oe, &avail, msg, b->lower, b->upper);
       msg = "\n       (" REALF ") - (" REALF ")";
     }
 
     for( res = result, comp = 0; res < Res; ++res ) {
-      printf("Rule: Before snsprintf %ld \n", avail);                  
-      int written = snprintf(oe, avail, "\n[" COUNT "] "
-			     REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
-      printf("Rule: After snsprintf %ld \n", written);      
-      if (written < 0 || written >= avail) {
-	invoke_r_exit();
-      } else {
-	oe = oe + written;
-	avail = avail - written;
-      }
+      safe_sprintf(&oe, &avail, "\n[" COUNT "] "
+		   REAL " +- " REAL, ++comp, SHOW(res->avg), SHOW(res->err));
     }
 
     Print(out);

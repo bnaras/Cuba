@@ -5,7 +5,9 @@
 		checkpointing by B. Chokoufe
 		last modified 14 Mar 15 th
 */
-
+#ifdef _R_INTERFACE
+#include <R.h>
+#endif
 
 #define POOLSIZE 1024
 
@@ -45,7 +47,6 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
   if( VERBOSE > 1 ) {
     char *oe = out;
     size_t avail = sizeof out;
-    printf("First Integrate: Before snsprintf avail: %ld\n", sizeof out);
     safe_sprintf(&oe, &avail, "Cuhre input parameters:\n"
       "  ndim " COUNT "\n  ncomp " COUNT "\n"
       ML_NOT("  nvec " NUMBER "\n")
@@ -59,12 +60,8 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
       t->flags, t->mineval, t->maxeval,
       t->key,
       t->statefile);
-    printf("First Integrate: After snsprintf\n");
-    printf("%s\n", out);
     Print(out);
   }
-
-  printf("After First Integrate\n");      
 
   if( BadComponent(t) ) return -2;
   if( BadDimension(t) ) return -1;
@@ -133,20 +130,14 @@ static int Integrate(This *t, real *integral, real *error, real *prob)
     if( VERBOSE ) {
       char *oe = out;
       size_t avail = sizeof out;
-      printf("Second Integrate:  snsprintf avail: %ld \n", avail);                  
       safe_sprintf(&oe, &avail, "\n"
 		   "Iteration " COUNT ":  " NUMBER " integrand evaluations so far",
 		   t->nregions, t->neval);
-      printf("Second Integrate: After snsprintf avail: %ld \n", avail);
-      printf("%s\n", out);      
       for(tot = state->totals, comp = 0; tot < Tot; ++tot) {
-	printf("For Integrate:  snsprintf avail: %ld \n", avail); 
 	safe_sprintf(&oe, &avail, "\n[" COUNT "] "
 		     REAL " +- " REAL "  \tchisq " REAL " (" COUNT " df)",
 		     ++comp, SHOW(tot->avg), SHOW(tot->err),
 		     SHOW(tot->chisq), t->nregions - 1);
-	printf("For Integrate: After snsprintf avail: %ld\n", avail);
-	printf("%s\n", out);
       }
       Print(out);
     }

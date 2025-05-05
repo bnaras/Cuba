@@ -7,10 +7,6 @@ void invoke_r_exit(void) {
     Rf_error("Error invoked from Cuba library");
 }
 
-void R_print(char *x) {
-  Rprintf("%s\n", x);
-}
-
 /**
  * safe_sprintf:
  *   Append formatted data to a buffer, tracking the write pointer and

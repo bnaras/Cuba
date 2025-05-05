@@ -5,6 +5,10 @@
 		last modified 13 Mar 15 th
 */
 
+#ifdef _R_INTERFACE
+#include <R.h>
+#endif
+
 
 typedef struct {
   real sum, sqsum;
@@ -89,18 +93,14 @@ static void Sample(This *t, cnumber nnew, Region *region,
 
           if( VERBOSE > 2 ) {
             creal sig = sqrtx(1/w);
-            int written = (df == 0) ?
-              snprintf(ss[comp], ss_avail[comp], "\n[" COUNT "] "
-		       REAL " +- " REAL " (" NUMBER ")", comp + 1,
-		       SHOW(c->sum), SHOW(sig), n) :
-              snprintf(ss[comp], ss_avail[comp], "\n    "
-		       REAL " +- " REAL " (" NUMBER ")",
-		       SHOW(c->sum), SHOW(sig), n);
-	    if (written < 0) {
-	      invoke_r_exit();
+            if (df == 0) {
+              safe_sprintf(&ss[comp], &ss_avail[comp], "\n[" COUNT "] "
+			   REAL " +- " REAL " (" NUMBER ")", comp + 1,
+			   SHOW(c->sum), SHOW(sig), n) :
 	    } else {
-	      ss[comp] += written;
-	      ss_avail[comp] -= written;
+	      safe_printf(&ss[comp], &ss_avail[comp], "\n    "
+			  REAL " +- " REAL " (" NUMBER ")",
+			  SHOW(c->sum), SHOW(sig), n);
 	    }
           }
 
@@ -155,26 +155,14 @@ static void Sample(This *t, cnumber nnew, Region *region,
     char *msg = "\nRegion (" REALF ") - (" REALF ")";
 
     for( b = bounds; b < B; ++b ) {
-      int written = snprintf(p, avail, msg, b->lower, b->upper);
-      if (written < 0) {
-	invoke_r_exit();
-      } else {
-	p += written;
-	avail = avail - written;
-      }      
+      safe_sprintf(&p, &avail, msg, b->lower, b->upper);
       msg = "\n       (" REALF ") - (" REALF ")";
     }
 
     for( comp = 0, res = region->result;
          comp < t->ncomp; ++comp, ++res ) {
-      int written = snprintf(p, avail, "%s  \tchisq " REAL " (" COUNT " df)",
-			     p0, SHOW(res->chisq), df);
-      if (written < 0) {
-	invoke_r_exit();
-      } else {
-	p += written;
-	avail = avail - written;
-      }      
+      safe_sprintf(&p, &avail, "%s  \tchisq " REAL " (" COUNT " df)",
+		   p0, SHOW(res->chisq), df);
     }
     Print(s);
     free(ss);
