@@ -96,7 +96,7 @@ static void Sample(This *t, cnumber nnew, Region *region,
             if (df == 0) {
               safe_sprintf(&ss[comp], &ss_avail[comp], "\n[" COUNT "] "
 			   REAL " +- " REAL " (" NUMBER ")", comp + 1,
-			   SHOW(c->sum), SHOW(sig), n) :
+			   SHOW(c->sum), SHOW(sig), n);
 	    } else {
 	      safe_sprintf(&ss[comp], &ss_avail[comp], "\n    "
 			  REAL " +- " REAL " (" NUMBER ")",
