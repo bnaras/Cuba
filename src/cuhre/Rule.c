@@ -746,7 +746,6 @@ static void Sample(This *t, Region *region)
     cchar *msg = "\nRegion (" REALF ") - (" REALF ")";
 
     for( b = region->bounds; b < B; ++b ) {
-      printf("Rule: Before snsprintf %ld \n", avail);            
       safe_sprintf(&oe, &avail, msg, b->lower, b->upper);
       msg = "\n       (" REALF ") - (" REALF ")";
     }

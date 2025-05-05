@@ -34,6 +34,5 @@ void safe_sprintf(char **poe, size_t *pavail, const char *fmt, ...) {
   /* advance write pointer and shrink remaining space */
   *poe    += n;
   *pavail -= (size_t)n;
-  printf("Updated avail = %zu\n", *pavail);  
 }
 
