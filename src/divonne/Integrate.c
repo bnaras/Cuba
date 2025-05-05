@@ -194,7 +194,7 @@ if( StateWriteTest(t) ) { \
       if( VERBOSE ) {
 	char *oe = out;
 	size_t avail = sizeof out;
-	safe_sprintf(&out, &avail, "\n"
+	safe_sprintf(&oe, &avail, "\n"
 		     "Iteration " COUNT " (pass " COUNT "):  " COUNT " regions\n"
 		     NUMBER7 " integrand evaluations so far,\n"
 		     NUMBER7 " in optimizing regions,\n"
