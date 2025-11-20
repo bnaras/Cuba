@@ -4,7 +4,7 @@
 
 # shellcheck disable=SC2006,SC2268 # see below for rationale
 
-timestamp='2025-07-10'
+timestamp='2025-11-20'
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -148,6 +148,14 @@ UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
 UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
 UNAME_SYSTEM=`(uname -s) 2>/dev/null` || UNAME_SYSTEM=unknown
 UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
+
+case "${UNAME_SYSTEM}" in
+  Emscripten)
+    # webR / r-universe wasm builder
+    echo "${UNAME_MACHINE}-unknown-emscripten"
+    exit 0
+    ;;
+esac
 
 case $UNAME_SYSTEM in
 Linux|GNU|GNU/*)
