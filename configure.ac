@@ -1,4 +1,4 @@
-# Process this file with autoconf to produce a configure script.
+dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
 AC_INIT([Cuba], [4.2.2], [hahn@feynarts.de])
@@ -9,18 +9,48 @@ USER_CFLAGS="$CFLAGS"
 
 AC_ARG_VAR(MCFLAGS, [MathLink C compiler flags])
 
+dnl We want $host to decide if we’re in a wasm/Emscripten build.
+AC_CANONICAL_HOST
+
+dnl Detect Emscripten / WebAssembly builds (used by webR / rwasm)
+case "$host" in
+  wasm32*-emscripten* | *-unknown-emscripten* | *-emscripten* )
+    emscripten_build=yes ;;
+  * )
+    emscripten_build=no ;;
+esac
+AC_SUBST([EMSCRIPTEN_BUILD], [$emscripten_build])
+
 AC_PROG_CC
 AC_PROG_FC
 AC_PROG_RANLIB
 AC_PROG_INSTALL
 
-AS_IF([test "$GCC" = yes],
-  [AS_CASE([`$CC --version 2>&1 < /dev/null`],
-    [*LLVM*], [opt=-O3],
-    [*gcc*4.2* | *gcc*4.4.3*], [opt=-O0],
-    [opt=-O3])
-   CFLAGS=${USER_CFLAGS:-$opt -fomit-frame-pointer -ffast-math -Wall}],
-  [CFLAGS=${USER_CFLAGS:--O}])
+dnl In standalone Emscripten builds, provide sensible defaults
+dnl (R/rwasm will already set CC/CXX/AR/RANLIB, so this is a no-op there).
+AS_IF([test "x$emscripten_build" = xyes], [
+  : ${CC:=emcc}
+  : ${CXX:=em++}
+  : ${AR:=emar}
+  : ${RANLIB:=emranlib}
+])
+
+dnl --- CFLAGS handling -------------------------------------------------
+dnl For native builds, keep the original Cuba logic.
+dnl For wasm, DO NOT clobber CFLAGS; keep whatever the toolchain (R/rwasm)
+dnl passed in via the environment.
+AS_IF([test "x$emscripten_build" = xyes], [
+  CFLAGS=${USER_CFLAGS:-$CFLAGS}
+], [
+  AS_IF([test "$GCC" = yes],
+    [AS_CASE([`$CC --version 2>&1 < /dev/null`],
+      [*LLVM*], [opt=-O3],
+      [*gcc*4.2* | *gcc*4.4.3*], [opt=-O0],
+      [opt=-O3])
+     CFLAGS=${USER_CFLAGS:-$opt -fomit-frame-pointer -ffast-math -Wall}],
+    [CFLAGS=${USER_CFLAGS:--O}]
+  )
+])
 
 AC_C_CONST
 AC_C_INLINE
@@ -30,6 +60,8 @@ AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 AC_TYPE_PID_T
 
+dnl Basic function checks – generally safe even for cross builds,
+dnl and rwasm will provide cache values via config.site if needed.
 AC_CHECK_FUNCS([powl])
 AC_CHECK_FUNCS([erf])
 AC_FUNC_FORK
@@ -75,9 +107,9 @@ AC_SUBST([SUFFIX])
 
 AC_MSG_CHECKING([for variable-size arrays])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE(,[[
-	void test(int n) {
-	  char s[n];
-	}
+        void test(int n) {
+          char s[n];
+        }
   ]])],
   [AC_MSG_RESULT([yes])],
   [AC_MSG_RESULT([no, using MAXDIM=$MAXDIM and MAXCOMP=$MAXCOMP])
@@ -85,8 +117,14 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(,[[
    AC_DEFINE_UNQUOTED([NCOMP], [$MAXCOMP], [Maximum number of dimensions])]
 )
 
-AC_MSG_CHECKING([for MathLink])
-cat > conftest.tm << _EOF_
+dnl --- MathLink / tools / Fortran probes ------------------------------
+dnl These make no sense for wasm/Emscripten and can break when the tools
+dnl (mcc, qmake, Fortran compiler) are unavailable, so we skip them when
+dnl cross-compiling to wasm.
+AS_IF([test "x$emscripten_build" != xyes], [
+
+  AC_MSG_CHECKING([for MathLink])
+  cat > conftest.tm << _EOF_
 :Begin:
 :Function: inc
 :Pattern: Inc[i_Integer]
@@ -103,32 +141,33 @@ int main(int argc, char **argv) {
   return MLMain(argc, argv);
 }
 _EOF_
-FCC="$srcdir/tools/fcc"
-rm -f conftest$EXEEXT
-MCSTDCPP=
-for MCSTDCPP in "" -stdlib=libstdc++ ; do
-  REALCC="$CC" CC="$FCC" CXX="$FCC $MCSTDCPP" PATH="$PATH:$srcdir/tools" \
-    mcc $MCFLAGS $CFLAGS -o conftest$EXEEXT conftest.tm > /dev/null 2>&1
-  AS_IF([test -x conftest$EXEEXT], [break])
-done
-AS_IF([test -x conftest$EXEEXT],
-  [AC_MSG_RESULT([yes])
-   MATH_DEFAULT=math],
-  [AC_MSG_RESULT([no])])
-AC_SUBST([MCSTDCPP])
-AC_SUBST([MATH_DEFAULT])
+  FCC="$srcdir/tools/fcc"
+  rm -f conftest$EXEEXT
+  MCSTDCPP=
+  for MCSTDCPP in "" -stdlib=libstdc++ ; do
+    REALCC="$CC" CC="$FCC" CXX="$FCC $MCSTDCPP" PATH="$PATH:$srcdir/tools" \
+      mcc $MCFLAGS $CFLAGS -o conftest$EXEEXT conftest.tm > /dev/null 2>&1
+    AS_IF([test -x conftest$EXEEXT], [break])
+  done
+  AS_IF([test -x conftest$EXEEXT],
+    [AC_MSG_RESULT([yes])
+     MATH_DEFAULT=math],
+    [AC_MSG_RESULT([no])])
+  AC_SUBST([MCSTDCPP])
+  AC_SUBST([MATH_DEFAULT])
 
-AC_CHECK_PROGS([HAVE_QMAKE], [qmake])
-AS_IF([test -n "$HAVE_QMAKE"],
-  [AS_CASE([`qmake -v`],
-    [*Qt?version?4*], [TOOLS_DEFAULT=tools])])
-AC_SUBST([TOOLS_DEFAULT])
+  AC_CHECK_PROGS([HAVE_QMAKE], [qmake])
+  AS_IF([test -n "$HAVE_QMAKE"],
+    [AS_CASE([`qmake -v`],
+      [*Qt?version?4*], [TOOLS_DEFAULT=tools])])
+  AC_SUBST([TOOLS_DEFAULT])
 
-test -n "$FC" && DEMO_FORTRAN_DEFAULT=demo-fortran
-AC_SUBST([DEMO_FORTRAN_DEFAULT])
+  test -n "$FC" && DEMO_FORTRAN_DEFAULT=demo-fortran
+  AC_SUBST([DEMO_FORTRAN_DEFAULT])
+
+]) dnl end !emscripten_build
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([makefile])
 
 AC_OUTPUT
-
