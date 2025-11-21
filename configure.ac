@@ -1,5 +1,4 @@
 dnl Process this file with autoconf to produce a configure script.
-
 AC_PREREQ(2.59)
 AC_INIT([Cuba], [4.2.2], [hahn@feynarts.de])
 AC_CONFIG_SRCDIR([cuba.h])
@@ -9,18 +8,26 @@ USER_CFLAGS="$CFLAGS"
 
 AC_ARG_VAR(MCFLAGS, [MathLink C compiler flags])
 
-dnl We want $host to decide if we’re in a wasm/Emscripten build.
+dnl Figure out $host early
 AC_CANONICAL_HOST
 
-dnl Detect Emscripten / WebAssembly builds (used by webR / rwasm)
+dnl Detect Emscripten / wasm host and, if CC is not set by the user,
+dnl pick the emscripten tools *before* AC_PROG_CC runs.
 case "$host" in
   wasm32*-emscripten* | *-unknown-emscripten* | *-emscripten* )
-    emscripten_build=yes ;;
+    emscripten_build=yes
+    : ${CC:=emcc}
+    : ${CXX:=em++}
+    : ${AR:=emar}
+    : ${RANLIB:=emranlib}
+    ;;
   * )
-    emscripten_build=no ;;
+    emscripten_build=no
+    ;;
 esac
 AC_SUBST([EMSCRIPTEN_BUILD], [$emscripten_build])
 
+dnl Now AC_PROG_CC will test whatever CC we’ve set above
 AC_PROG_CC
 AC_PROG_FC
 AC_PROG_RANLIB

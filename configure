@@ -2670,9 +2670,15 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 case "$host" in
   wasm32*-emscripten* | *-unknown-emscripten* | *-emscripten* )
-    emscripten_build=yes ;;
+    emscripten_build=yes
+    : ${CC:=emcc}
+    : ${CXX:=em++}
+    : ${AR:=emar}
+    : ${RANLIB:=emranlib}
+    ;;
   * )
-    emscripten_build=no ;;
+    emscripten_build=no
+    ;;
 esac
 EMSCRIPTEN_BUILD=$emscripten_build
 
